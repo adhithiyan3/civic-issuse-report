@@ -4,9 +4,14 @@ import api from '../services/api';
 import {
     Users, CheckCircle, AlertTriangle, Clock,
     Search, UserPlus, Shield, ChevronRight, LayoutDashboard, Database, MapPin, X,
-    RotateCcw, Phone, User, Briefcase, Calendar, Building2, FileText, Mail, TrendingUp, ThumbsUp, ThumbsDown
+    RotateCcw, Phone, User, Briefcase, Calendar, Building2, FileText, Mail, TrendingUp, ThumbsUp, ThumbsDown,
+    BarChart2, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+    ChartCard, StatusPieChart, PriorityDonutChart, CategoryBarChart,
+    MonthlyTrendChart, ResolutionGauge, DepartmentBarChart, ChartSkeleton
+} from '../components/AnalyticsCharts';
 
 const AdminDashboard = () => {
     const { t } = useTranslation();
@@ -23,6 +28,8 @@ const AdminDashboard = () => {
     const [selectedDepartment, setSelectedDepartment] = useState('all');
     const [activeTab, setActiveTab] = useState('complaints');
     const [sortByRanking, setSortByRanking] = useState(false);
+    const [analytics, setAnalytics] = useState(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -44,6 +51,22 @@ const AdminDashboard = () => {
     };
 
     useEffect(() => { fetchData(); }, [sortByRanking]);
+
+    const fetchAnalytics = async () => {
+        setAnalyticsLoading(true);
+        try {
+            const res = await api.get('/admin/analytics');
+            setAnalytics(res.data);
+        } catch (err) {
+            console.error('Failed to fetch analytics');
+        } finally {
+            setAnalyticsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'analytics') fetchAnalytics();
+    }, [activeTab]);
 
     const handleAssign = async (employeeId) => {
         setAssigning(true);
@@ -118,6 +141,7 @@ const AdminDashboard = () => {
         { id: 'complaints', label: 'Complaints', icon: <FileText className="w-4 h-4" />, count: complaints.length },
         { id: 'employees', label: 'Employees', icon: <Users className="w-4 h-4" />, count: employees.length },
         { id: 'offices', label: 'Offices', icon: <Building2 className="w-4 h-4" />, count: offices.length },
+        { id: 'analytics', label: 'Analytics', icon: <BarChart2 className="w-4 h-4" />, count: null },
     ];
 
     return (
@@ -160,21 +184,26 @@ const AdminDashboard = () => {
 
                 {/* Tab Navigation */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm inline-flex">
+                    <div className="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm inline-flex flex-wrap">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id); setSelectedComplaint(null); }}
-                                className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all ${activeTab === tab.id
-                                    ? 'bg-slate-900 text-white shadow-lg'
-                                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-                                    }`}
+                                className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all ${
+                                    activeTab === tab.id
+                                        ? tab.id === 'analytics'
+                                            ? 'bg-indigo-600 text-white shadow-lg'
+                                            : 'bg-slate-900 text-white shadow-lg'
+                                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                                }`}
                             >
                                 {tab.icon}
                                 <span className="hidden sm:inline">{tab.label}</span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-lg font-black ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                    {tab.count}
-                                </span>
+                                {tab.count !== null && (
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-lg font-black ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                        {tab.count}
+                                    </span>
+                                )}
                             </button>
                         ))}
                     </div>
@@ -647,6 +676,77 @@ const AdminDashboard = () => {
                         </div>
                     </motion.div>
                 )}
+
+                {/* ═══════════════════════════════════════════════════ */}
+                {/* ANALYTICS TAB                                      */}
+                {/* ═══════════════════════════════════════════════════ */}
+                {activeTab === 'analytics' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                        {/* Header bar */}
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Visual Analytics</h2>
+                                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1 italic">Real-time complaint data insights</p>
+                            </div>
+                            <button
+                                onClick={fetchAnalytics}
+                                disabled={analyticsLoading}
+                                className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-500 hover:bg-slate-50 transition-all shadow-sm"
+                            >
+                                <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                        </div>
+
+                        {analyticsLoading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-7">
+                                        <ChartSkeleton />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : analytics ? (
+                            <>
+                                {/* ── Row 1: Status + Priority + Resolution ── */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <ChartCard title="Complaint Status" subtitle="Distribution" delay={0}>
+                                        <StatusPieChart data={analytics.statusDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Priority Breakdown" subtitle="AI-Assigned Levels" delay={0.08}>
+                                        <PriorityDonutChart data={analytics.priorityDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Resolution Rate" subtitle="Overall Performance" delay={0.16}>
+                                        <ResolutionGauge rate={analytics.resolutionRate} kpis={analytics.kpis} />
+                                    </ChartCard>
+                                </div>
+
+                                {/* ── Row 2: Monthly Trend ── */}
+                                <div className="mb-6">
+                                    <ChartCard title="Monthly Complaint Trend" subtitle="Last 6 Months" delay={0.24}>
+                                        <MonthlyTrendChart data={analytics.monthlyTrend} />
+                                    </ChartCard>
+                                </div>
+
+                                {/* ── Row 3: Category + Department ── */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <ChartCard title="Category Distribution" subtitle="By Issue Type" delay={0.32}>
+                                        <CategoryBarChart data={analytics.categoryDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Department Workload" subtitle="Assigned Complaints" delay={0.40}>
+                                        <DepartmentBarChart data={analytics.departmentStats} />
+                                    </ChartCard>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-24 text-center">
+                                <BarChart2 className="w-12 h-12 text-slate-100 mx-auto mb-4" />
+                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs italic">Failed to load analytics. Click Refresh to retry.</p>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+
             </div>
         </div>
     );

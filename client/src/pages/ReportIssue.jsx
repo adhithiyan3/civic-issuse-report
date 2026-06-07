@@ -103,7 +103,7 @@ const ReportIssue = () => {
                         >
                             <div className="flex items-center justify-center gap-2 mb-3">
                                 <Sparkles className="w-4 h-4 text-violet-500" />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('complaint.ai_assigned')}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">CNN+RNN Neural Priority</span>
                             </div>
                             <span className={`inline-block px-5 py-2 rounded-2xl text-sm font-black uppercase tracking-wider ${priorityStyles[aiResult.priority] || 'bg-slate-200 text-slate-700'}`}>
                                 {aiResult.priority} Priority
@@ -114,6 +114,13 @@ const ReportIssue = () => {
                                     {aiResult.reason}
                                 </p>
                             )}
+                            <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                <span>CNN Image Scan ✓</span>
+                                <span>·</span>
+                                <span>RNN Text Analysis ✓</span>
+                                <span>·</span>
+                                <span>Fusion Layer ✓</span>
+                            </div>
                             {aiResult.officeName && (
                                 <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-slate-100">
                                     <Building2 className="w-4 h-4 text-blue-500" />
@@ -170,8 +177,8 @@ const ReportIssue = () => {
                         <Brain className="w-6 h-6 text-violet-500" />
                     </div>
                     <div>
-                        <p className="text-sm font-black text-slate-800">{t('complaint.ai_analyzing')}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 font-medium italic">Our proprietary Neural Fusion Engine (CNN+RNN) will evaluate your report to automatically determine the priority.</p>
+                        <p className="text-sm font-black text-slate-800">Custom Deep Learning Engine Active</p>
+                        <p className="text-xs text-slate-500 mt-0.5 font-medium italic">Our offline CNN+RNN Neural Fusion Engine scans the image (ResNet-50) and text (BiLSTM) to automatically determine priority — no external APIs used.</p>
                     </div>
                     <Sparkles className="w-5 h-5 text-violet-400 ml-auto shrink-0" />
                 </motion.div>
@@ -335,7 +342,7 @@ const ReportIssue = () => {
                                     {loading ? (
                                         <div className="flex items-center gap-3">
                                             <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                                            <span className="text-sm font-bold uppercase tracking-wider animate-pulse">{t('complaint.ai_analyzing')}...</span>
+                                            <span className="text-sm font-bold uppercase tracking-wider animate-pulse">Deep Analysis in Progress...</span>
                                         </div>
                                     ) : (
                                         <>
@@ -346,7 +353,7 @@ const ReportIssue = () => {
                                     )}
                                 </button>
                                 <p className="text-[10px] text-center mt-6 text-slate-400 font-bold uppercase tracking-widest leading-loose">
-                                    AI will analyze your report to assign the appropriate priority level.
+                                    CNN scans your image · RNN reads your description · Fusion assigns priority
                                 </p>
                             </div>
                         </motion.section>

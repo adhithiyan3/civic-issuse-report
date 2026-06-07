@@ -3,9 +3,15 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import {
     Building2, UserPlus, Users, Briefcase, Shield, Plus,
-    ChevronRight, X, MapPin, Phone, Lock, User, Edit2, Trash2
+    ChevronRight, X, MapPin, Phone, Lock, User, Edit2, Trash2,
+    BarChart2, RefreshCw, TrendingUp, CheckCircle, AlertCircle, Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+    ChartCard, StatusPieChart, PriorityDonutChart, CategoryBarChart,
+    MonthlyTrendChart, ResolutionGauge, DepartmentBarChart,
+    UserRolePieChart, ChartSkeleton
+} from '../components/AnalyticsCharts';
 
 const SuperAdminPanel = () => {
     const { t } = useTranslation();
@@ -13,11 +19,13 @@ const SuperAdminPanel = () => {
     const [offices, setOffices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('users');
-    const [showModal, setShowModal] = useState(null); // 'office', 'admin', 'employee'
+    const [showModal, setShowModal] = useState(null);
     const [editingOffice, setEditingOffice] = useState(null);
     const [formData, setFormData] = useState({});
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [analytics, setAnalytics] = useState(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -38,6 +46,22 @@ const SuperAdminPanel = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const fetchAnalytics = async () => {
+        setAnalyticsLoading(true);
+        try {
+            const res = await api.get('/admin/analytics');
+            setAnalytics(res.data);
+        } catch (err) {
+            console.error('Failed to fetch analytics');
+        } finally {
+            setAnalyticsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'analytics') fetchAnalytics();
+    }, [activeTab]);
 
     const resetForm = () => {
         setFormData({});
@@ -134,6 +158,7 @@ const SuperAdminPanel = () => {
     const tabs = [
         { key: 'users', label: t('superadmin.all_users'), icon: <Users className="w-4 h-4" />, count: users.length },
         { key: 'offices', label: t('superadmin.all_offices'), icon: <Building2 className="w-4 h-4" />, count: offices.length },
+        { key: 'analytics', label: 'System Analytics', icon: <BarChart2 className="w-4 h-4" />, count: null },
     ];
 
     return (
@@ -181,21 +206,25 @@ const SuperAdminPanel = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-8 flex-wrap">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all ${activeTab === tab.key
-                                ? 'bg-slate-900 text-white shadow-xl'
+                                ? tab.key === 'analytics'
+                                    ? 'bg-indigo-600 text-white shadow-xl'
+                                    : 'bg-slate-900 text-white shadow-xl'
                                 : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'
                                 }`}
                         >
                             {tab.icon}
                             {tab.label}
-                            <span className={`ml-1 px-2 py-0.5 rounded-lg text-[10px] font-black ${activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                                {tab.count}
-                            </span>
+                            {tab.count !== null && (
+                                <span className={`ml-1 px-2 py-0.5 rounded-lg text-[10px] font-black ${activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                    {tab.count}
+                                </span>
+                            )}
                         </button>
                     ))}
                 </div>
@@ -291,6 +320,98 @@ const SuperAdminPanel = () => {
                         ))}
                     </div>
                 )}
+                {/* ── System Analytics Tab ── */}
+                {activeTab === 'analytics' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                        {/* Header bar */}
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">System Analytics</h2>
+                                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1 italic">Platform-wide operational insights</p>
+                            </div>
+                            <button
+                                onClick={fetchAnalytics}
+                                disabled={analyticsLoading}
+                                className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-500 hover:bg-slate-50 transition-all shadow-sm"
+                            >
+                                <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                        </div>
+
+                        {analyticsLoading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-7">
+                                        <ChartSkeleton />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : analytics ? (
+                            <>
+                                {/* ── KPI Summary Row ── */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                                    {[
+                                        { label: 'Total Complaints', val: analytics.kpis.total, color: 'text-slate-900', bg: 'bg-slate-50', icon: <TrendingUp className="w-5 h-5 text-slate-500" /> },
+                                        { label: 'Resolved', val: analytics.kpis.resolved, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: <CheckCircle className="w-5 h-5 text-emerald-500" /> },
+                                        { label: 'Pending', val: analytics.kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50', icon: <Clock className="w-5 h-5 text-amber-500" /> },
+                                        { label: 'Rejected', val: analytics.kpis.rejected, color: 'text-rose-600', bg: 'bg-rose-50', icon: <AlertCircle className="w-5 h-5 text-rose-500" /> },
+                                    ].map(({ label, val, color, bg, icon }, idx) => (
+                                        <motion.div
+                                            key={label}
+                                            initial={{ opacity: 0, y: 16 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.07 }}
+                                            className="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm p-6 flex items-center gap-4 hover:shadow-lg transition-all"
+                                        >
+                                            <div className={`w-11 h-11 ${bg} rounded-xl flex items-center justify-center flex-shrink-0`}>{icon}</div>
+                                            <div>
+                                                <p className={`text-2xl font-black ${color} leading-none`}>{val}</p>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{label}</p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {/* ── Row 1: User Roles + Status Pie + Priority ── */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <ChartCard title="User Distribution" subtitle="By Role" delay={0}>
+                                        <UserRolePieChart data={analytics.userRoleDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Complaint Status" subtitle="System-wide" delay={0.08}>
+                                        <StatusPieChart data={analytics.statusDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Resolution Rate" subtitle="Overall Performance" delay={0.16}>
+                                        <ResolutionGauge rate={analytics.resolutionRate} kpis={analytics.kpis} />
+                                    </ChartCard>
+                                </div>
+
+                                {/* ── Row 2: Monthly Trend ── */}
+                                <div className="mb-6">
+                                    <ChartCard title="Monthly Complaint Trend" subtitle="Last 6 Months — System Wide" delay={0.24}>
+                                        <MonthlyTrendChart data={analytics.monthlyTrend} />
+                                    </ChartCard>
+                                </div>
+
+                                {/* ── Row 3: Category + Department ── */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <ChartCard title="Category Breakdown" subtitle="Issue Types System-wide" delay={0.32}>
+                                        <CategoryBarChart data={analytics.categoryDistribution} />
+                                    </ChartCard>
+                                    <ChartCard title="Department Workload" subtitle="Assigned vs. Resolved" delay={0.40}>
+                                        <DepartmentBarChart data={analytics.departmentStats} />
+                                    </ChartCard>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-24 text-center">
+                                <BarChart2 className="w-12 h-12 text-slate-100 mx-auto mb-4" />
+                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs italic">Failed to load analytics. Click Refresh to retry.</p>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+
             </div>
 
             {/* Create Modal */}

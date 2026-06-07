@@ -4,7 +4,7 @@ import path from 'path';
 import Complaint from '../models/Complaint.js';
 import { protect, authorize } from '../middleware/auth.js';
 import crypto from 'crypto';
-import { analyzeComplaint } from '../services/geminiAnalyzer.js';
+import { analyzeComplaint } from '../services/hybridAnalyzer.js';
 import { routeToOffice, computeLocationWeight } from '../services/officeRouter.js';
 
 const router = express.Router();
