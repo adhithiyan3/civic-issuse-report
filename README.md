@@ -1,5 +1,7 @@
 # Smart Civic Reporting
 
+🔗 **Live Link:** [https://civic-issuse-report-gamma.vercel.app](https://civic-issuse-report-gamma.vercel.app)
+
 An AI-powered municipal complaint management platform built on the MERN stack. It allows citizens to report civic issues (roads, water, electricity, sanitation) with photos and map coordinates, automatically prioritizes them using an offline CNN+RNN engine, and routes them to the nearest municipal office.
 
 ---
