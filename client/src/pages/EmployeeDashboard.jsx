@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 import {
     Briefcase, CheckCircle, Clock, Camera,
     MapPin, AlertCircle, PlayCircle, ChevronRight, X, ArrowRight, Upload, User, Phone, Calendar
@@ -106,7 +106,7 @@ const EmployeeDashboard = () => {
                                 <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl opacity-10 -mr-12 -mt-12 transition-all group-hover:opacity-40 ${task.status === 'Assigned' ? 'bg-blue-500' : task.status === 'In Progress' ? 'bg-indigo-600' : 'bg-emerald-500'}`}></div>
 
                                 <div className="w-full md:w-56 h-40 rounded-3xl bg-slate-50 overflow-hidden shrink-0 border border-slate-100 relative shadow-inner">
-                                    {task.imageBefore && <img src={`http://localhost:5000${task.imageBefore}`} alt="Incident" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />}
+                                    {task.imageBefore && <img src={`${API_BASE_URL}${task.imageBefore}`} alt="Incident" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />}
                                     <div className="absolute top-4 left-4 px-3 py-1 bg-black/30 backdrop-blur-md rounded-lg text-[10px] font-black text-white uppercase shadow-sm">Before Repair</div>
                                 </div>
 
@@ -162,7 +162,7 @@ const EmployeeDashboard = () => {
                             className="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl relative z-10 overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
 
                             <div className="relative h-72 bg-slate-100 border-b-8 border-white overflow-hidden group/img">
-                                {selectedTask.imageBefore && <img src={`http://localhost:5000${selectedTask.imageBefore}`} alt="Repair site" className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-1000" />}
+                                {selectedTask.imageBefore && <img src={`${API_BASE_URL}${selectedTask.imageBefore}`} alt="Repair site" className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-1000" />}
                                 <button onClick={() => setSelectedTask(null)} className="absolute top-6 right-6 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-slate-900 hover:rotate-90 transition-all duration-300"><X className="w-6 h-6" /></button>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                                 <div className="absolute bottom-6 left-8 px-5 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-xs font-black text-white uppercase tracking-widest shadow-lg">Original Incident Report</div>

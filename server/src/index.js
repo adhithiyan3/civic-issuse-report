@@ -5,8 +5,12 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import complaintRoutes from './routes/complaints.js';
 import adminRoutes from './routes/admin.js';
+import fs from 'fs';
 
 dotenv.config();
+
+// Ensure uploads directory exists
+fs.mkdirSync('uploads/complaints', { recursive: true });
 
 const app = express();
 const PORT = process.env.PORT || 5000;

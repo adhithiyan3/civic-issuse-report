@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 import {
     FileText, Clock, CheckCircle2, AlertTriangle,
     MapPin, Calendar, Plus, RefreshCw, User, ArrowRight, Brain, Sparkles,
@@ -498,7 +498,7 @@ const CitizenDashboard = () => {
                                     {/* Card Image */}
                                     <div className="w-full h-40 bg-slate-50 overflow-hidden relative">
                                         {complaint.imageBefore ? (
-                                            <img src={`http://localhost:5000${complaint.imageBefore}`} alt="Issue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                            <img src={`${API_BASE_URL}${complaint.imageBefore}`} alt="Issue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                                                 <FileText className="w-12 h-12 text-slate-200" />

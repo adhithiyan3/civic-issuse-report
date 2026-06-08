@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 import {
     Users, CheckCircle, AlertTriangle, Clock,
     Search, UserPlus, Shield, ChevronRight, LayoutDashboard, Database, MapPin, X,
@@ -349,7 +349,7 @@ const AdminDashboard = () => {
                                             {/* Before Image */}
                                             {selectedComplaint.imageBefore && (
                                                 <div className="relative rounded-[2rem] overflow-hidden shadow-lg border-4 border-white aspect-video bg-slate-50">
-                                                    <img src={`http://localhost:5000${selectedComplaint.imageBefore}`} alt="Issue Before" className="w-full h-full object-cover" />
+                                                    <img src={`${API_BASE_URL}${selectedComplaint.imageBefore}`} alt="Issue Before" className="w-full h-full object-cover" />
                                                     <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-lg text-[10px] font-black text-white uppercase shadow-sm">Before Repair</div>
                                                 </div>
                                             )}
@@ -443,13 +443,13 @@ const AdminDashboard = () => {
                                                     <div className="grid grid-cols-2 gap-3">
                                                         {selectedComplaint.imageBefore && (
                                                             <div className="relative rounded-2xl overflow-hidden shadow-lg border-2 border-white aspect-square bg-slate-50">
-                                                                <img src={`http://localhost:5000${selectedComplaint.imageBefore}`} alt="Before" className="w-full h-full object-cover" />
+                                                                <img src={`${API_BASE_URL}${selectedComplaint.imageBefore}`} alt="Before" className="w-full h-full object-cover" />
                                                                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-md text-[8px] font-black text-white uppercase">Before</div>
                                                             </div>
                                                         )}
                                                         {selectedComplaint.imageAfter && (
                                                             <div className="relative rounded-2xl overflow-hidden shadow-lg border-2 border-white aspect-square bg-emerald-50">
-                                                                <img src={`http://localhost:5000${selectedComplaint.imageAfter}`} alt="After" className="w-full h-full object-cover" />
+                                                                <img src={`${API_BASE_URL}${selectedComplaint.imageAfter}`} alt="After" className="w-full h-full object-cover" />
                                                                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 rounded-md text-[8px] font-black text-white uppercase">After</div>
                                                             </div>
                                                         )}
